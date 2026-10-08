@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,13 @@
   <!-- Google Fonts: Inter & Material Symbols Outlined (CDN Resmi) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet">
 
   <!-- Pustaka Dependensi (Versi Terpin) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.4.1/dist/docx-preview.min.js"></script>
 
   <style>
     /*
@@ -20,12 +23,18 @@
      * Kanvas Kertas: Mengadopsi tata letak Microsoft Word dengan jeda (gap) rapi antar halaman
      */
     :root {
-      --canvas-bg: #eceff1;        /* Warna meja kerja netral ala Word */
-      --header-bg: #ffffff;        /* Header putih bersih */
-      --border-color: #111111;     /* Border hitam solid tegas */
-      --border-muted: #e2e8f0;     /* Border abu-abu halus */
-      --text-main: #111111;        /* Teks hitam pekat */
-      --text-muted: #64748b;       /* Teks abu netral */
+      --canvas-bg: #eceff1;
+      /* Warna meja kerja netral ala Word */
+      --header-bg: #ffffff;
+      /* Header putih bersih */
+      --border-color: #111111;
+      /* Border hitam solid tegas */
+      --border-muted: #e2e8f0;
+      /* Border abu-abu halus */
+      --text-main: #111111;
+      /* Teks hitam pekat */
+      --text-muted: #64748b;
+      /* Teks abu netral */
       --paper-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
@@ -67,8 +76,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #d4d4d8; /* Border persis seperti kertas */
-      box-shadow: var(--paper-shadow);   /* Shadow persis seperti kertas */
+      border-bottom: 1px solid #d4d4d8;
+      /* Border persis seperti kertas */
+      box-shadow: var(--paper-shadow);
+      /* Shadow persis seperti kertas */
     }
 
     .toolbar-left {
@@ -187,24 +198,174 @@
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
-      gap: 12px !important; /* Jeda antar halaman pas & tidak terlalu renggang */
+      gap: 12px !important;
+      /* Jeda antar halaman pas & tidak terlalu renggang */
       width: 100% !important;
     }
 
     /* Setiap lembar kertas Word */
-    .docx-wrapper > section.docx {
+    .docx-wrapper>section.docx {
       background: #ffffff !important;
       margin: 0 auto !important;
-      margin-bottom: 12px !important; /* Gap pas ala Microsoft Word */
+      margin-bottom: 12px !important;
+      /* Gap pas ala Microsoft Word */
       box-shadow: var(--paper-shadow) !important;
-      border: 1px solid #d4d4d8 !important; /* Border tipis rapi pada pinggir kertas */
-      border-radius: 0px !important;       /* Potongan kertas sudut tajam ala MS Word */
+      border: 1px solid #d4d4d8 !important;
+      /* Border tipis rapi pada pinggir kertas */
+      border-radius: 0px !important;
+      /* Potongan kertas sudut tajam ala MS Word */
       box-sizing: border-box !important;
       transition: box-shadow 0.2s ease;
     }
 
-    .docx-wrapper > section.docx:hover {
+    /* .docx-wrapper > section.docx:hover {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+    } */
+
+    /* =========================================================================
+     * PENYELARASAN TIPOGRAFI, FONT DOKUMEN & ELEMEN DOCX
+     * ========================================================================= */
+    /* Font dokumen asli (fallback ke Calibri/Aptos jika tidak tersedia di OS) */
+    .docx-wrapper,
+    section.docx,
+    .docx,
+    .docx p,
+    .docx span,
+    .docx td,
+    .docx th,
+    .docx li {
+      font-family: var(--docx-doc-font, Calibri, Aptos, "Segoe UI", Arial, sans-serif);
+    }
+
+    .docx h1, .docx h2, .docx h3, .docx h4, .docx h5, .docx h6,
+    .docx [class*="-heading"],
+    .docx [class*="-title"] {
+      font-family: var(--docx-heading-font, var(--docx-doc-font, Calibri, Aptos, "Segoe UI", Arial, sans-serif));
+    }
+
+    /* Dukungan Hanging Line / Hanging Indent */
+    .docx p[style*="text-indent: -"],
+    .docx p[style*="text-indent:-"],
+    .docx .docx-hanging-indent {
+      overflow: visible !important;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+
+    /* Dukungan Margin & Padding Tabel Ala Microsoft Word */
+    .docx table {
+      border-collapse: collapse !important;
+      margin-top: 0.6em;
+      margin-bottom: 0.6em;
+    }
+
+    /* Padding default sel Word (5.4pt kiri-kanan, 2-3pt atas-bawah) */
+    .docx table td,
+    .docx table th {
+      vertical-align: top;
+      padding: 3.5pt 5.5pt;
+      box-sizing: border-box;
+    }
+
+    /* Perataan posisi horizontal tabel (Center, Right, Left) */
+    .docx table[style*="text-align: center"],
+    .docx table[style*="text-align:center"] {
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .docx table[style*="text-align: right"],
+    .docx table[style*="text-align:right"] {
+      margin-left: auto !important;
+      margin-right: 0 !important;
+    }
+
+    .docx table[style*="text-align: left"],
+    .docx table[style*="text-align:left"] {
+      margin-right: auto !important;
+    }
+
+    /* Dukungan Perataan Justify (Rata Kanan Kiri) */
+    .docx p[style*="text-align: justify"],
+    .docx p[style*="text-align:justify"],
+    .docx [style*="text-align: justify"],
+    .docx .docx-justify {
+      text-align: justify !important;
+      text-justify: inter-word !important;
+      hyphens: auto;
+    }
+
+    /* Distribute alignment dari Word (Japanese/Thai/Full Justify) */
+    .docx p[style*="distribute"],
+    .docx [style*="text-align: distribute"] {
+      text-align: justify !important;
+      text-align-last: justify !important;
+      text-justify: distribute !important;
+    }
+
+    /* =========================================================================
+     * INDENTASI & MARGIN PRESISI UNTUK BULLET DAN NUMBERING ALA MS WORD
+     * ========================================================================= */
+     .docx-wrapper section.docx p[class*="-num-"],
+     .docx p[class*="-num-"] {
+      display: block !important;
+      list-style: none !important;
+      list-style-type: none !important;
+      list-style-position: outside !important;
+      margin-left: 36pt;             /* Default Word Level 0: 0.5 in / 36pt */
+      margin-inline-start: 36pt;
+      text-indent: -18pt;            /* Hanging indent: 0.25 in / 18pt */
+      padding-left: 0 !important;
+      position: relative !important;
+      overflow: visible !important;
+    }
+
+    /* Pseudo-element dot / nomor berada di dalam kolom hanging indent */
+    .docx-wrapper section.docx p[class*="-num-"]::before,
+    .docx p[class*="-num-"]::before {
+      display: inline-block !important;
+      width: 18pt !important;        /* Lebar tepat sesuai hanging indent */
+      min-width: 18pt !important;
+      text-align: left !important;
+      text-indent: 0 !important;
+      vertical-align: 0.04em !important;
+      margin-right: 0 !important;
+      font-size: 0.84em !important;  /* Ukuran dot seimbang dengan font */
+      line-height: 1 !important;
+      box-sizing: border-box !important;
+      font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+
+    /* Fallback level 1 (class diakhiri -1) */
+    .docx-wrapper section.docx p[class*="-num-"][class$="-1"],
+    .docx p[class*="-num-"][class$="-1"] {
+      margin-left: 72pt;
+      margin-inline-start: 72pt;
+    }
+
+    /* Fallback level 2 (class diakhiri -2) */
+    .docx-wrapper section.docx p[class*="-num-"][class$="-2"],
+    .docx p[class*="-num-"][class$="-2"] {
+      margin-left: 108pt;
+      margin-inline-start: 108pt;
+    }
+
+    /* Penanganan Garis Paragraf / Border Merging agar tidak terjadi garis dobel */
+    .docx p[style*="border-bottom"] {
+      padding-bottom: 2pt;
+    }
+
+    /* Tab Leader Dots (Daftar Isi): Halus, titik rapi di baseline ala Word */
+    .docx span.docx-tab[style*="dotted"],
+    .docx span.docx-tab[style*="underline"],
+    .docx span.docx-leader-dot {
+      text-decoration: none !important;
+      background-image: radial-gradient(circle, currentColor 0.85px, transparent 1.1px) !important;
+      background-position: bottom 3px left 0 !important;
+      background-size: 6px 2px !important;
+      background-repeat: repeat-x !important;
+      word-spacing: normal !important;
+      display: inline-block;
     }
 
     #style-container {
@@ -222,9 +383,12 @@
 
     .status-box {
       background: #ffffff;
-      border: 1px solid #d4d4d8;        /* Border persis seperti kertas */
-      box-shadow: var(--paper-shadow);   /* Shadow persis seperti kertas */
-      border-radius: 0px;               /* Sudut tajam persis seperti kertas */
+      border: 1px solid #d4d4d8;
+      /* Border persis seperti kertas */
+      box-shadow: var(--paper-shadow);
+      /* Shadow persis seperti kertas */
+      border-radius: 0px;
+      /* Sudut tajam persis seperti kertas */
       padding: 28px 24px;
       text-align: center;
     }
@@ -244,7 +408,9 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .status-title {
@@ -305,19 +471,25 @@
 
     /* Print View */
     @media print {
-      .toolbar, .status-container {
+
+      .toolbar,
+      .status-container {
         display: none !important;
       }
+
       body {
         background: white !important;
       }
+
       .preview-viewport {
         padding: 0 !important;
       }
+
       .docx-wrapper {
         gap: 0 !important;
       }
-      .docx-wrapper > section.docx {
+
+      .docx-wrapper>section.docx {
         box-shadow: none !important;
         border: none !important;
         margin-bottom: 0 !important;
@@ -326,6 +498,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Header Toolbar Flat Black & White (Tanpa Garis Bawah) -->
@@ -463,6 +636,361 @@
       });
     }
 
+    /**
+     * Mengekstrak informasi font dari berkas ZIP DOCX dan menerapkannya ke dokumen
+     */
+    async function extractAndApplyDocxFonts(dataBuffer) {
+      try {
+        if (typeof JSZip === 'undefined') return;
+        const zip = await JSZip.loadAsync(dataBuffer);
+        let primaryFont = null;
+        let headingFont = null;
+        const detectedFonts = new Set();
+
+        // 1. Periksa word/theme/theme1.xml (minorFont & majorFont)
+        const themeFile = zip.file('word/theme/theme1.xml');
+        if (themeFile) {
+          const themeXml = await themeFile.async('text');
+          const minorMatch = themeXml.match(/<a:minorFont[^>]*>[\s\S]*?<a:latin[^>]*typeface="([^"]+)"/);
+          const majorMatch = themeXml.match(/<a:majorFont[^>]*>[\s\S]*?<a:latin[^>]*typeface="([^"]+)"/);
+          if (minorMatch && minorMatch[1]) {
+            primaryFont = minorMatch[1];
+            detectedFonts.add(primaryFont);
+          }
+          if (majorMatch && majorMatch[1]) {
+            headingFont = majorMatch[1];
+            detectedFonts.add(headingFont);
+          }
+        }
+
+        // 2. Periksa word/fontTable.xml untuk daftar seluruh font yang didaftarkan
+        const fontTableFile = zip.file('word/fontTable.xml');
+        if (fontTableFile) {
+          const fontTableXml = await fontTableFile.async('text');
+          const fontRegex = /<w:font[^>]*w:name="([^"]+)"/g;
+          let match;
+          while ((match = fontRegex.exec(fontTableXml)) !== null) {
+            if (match[1]) detectedFonts.add(match[1]);
+          }
+        }
+
+        // 3. Periksa word/styles.xml untuk font default dokumen (rPrDefault)
+        const stylesFile = zip.file('word/styles.xml');
+        if (stylesFile) {
+          const stylesXml = await stylesFile.async('text');
+          const docDefaultMatch = stylesXml.match(/<w:rPrDefault>[\s\S]*?<w:rFonts[^>]*w:ascii="([^"]+)"/);
+          if (docDefaultMatch && docDefaultMatch[1]) {
+            primaryFont = docDefaultMatch[1];
+            detectedFonts.add(primaryFont);
+          }
+        }
+
+        // Default Microsoft Word jika tidak terdeteksi
+        primaryFont = primaryFont || 'Calibri';
+        headingFont = headingFont || primaryFont;
+
+        // Pembuat rantai fallback font yang tepat
+        function buildFontFamilyStack(fontName) {
+          if (!fontName) return 'Calibri, Aptos, "Segoe UI", Arial, sans-serif';
+          const lower = fontName.toLowerCase();
+          if (lower.includes('times') || lower.includes('cambria') || lower.includes('georgia') || lower.includes('garamond') || lower.includes('serif')) {
+            return `"${fontName}", Cambria, "Times New Roman", Georgia, serif`;
+          }
+          if (lower.includes('courier') || lower.includes('consolas') || lower.includes('mono')) {
+            return `"${fontName}", Consolas, "Courier New", monospace`;
+          }
+          return `"${fontName}", Calibri, Aptos, "Segoe UI", Arial, sans-serif`;
+        }
+
+        const docFontStack = buildFontFamilyStack(primaryFont);
+        const headingFontStack = buildFontFamilyStack(headingFont);
+
+        // 4. Ekstrak indentasi dan margin spesifik untuk setiap level bullet & numbering dari word/numbering.xml
+        let numberingStylesText = '';
+        const numberingFile = zip.file('word/numbering.xml');
+        if (numberingFile) {
+          try {
+            const numberingXml = await numberingFile.async('text');
+            const abstractMap = {};
+
+            // Parsing XML dengan regex robust, terbukti 100% bebas dari batasan namespace XML DOM browser
+            const absRegex = /<w:abstractNum\b[\s\S]*?w:abstractNumId="([^"]+)"[\s\S]*?>([\s\S]*?)<\/w:abstractNum>/g;
+            let absMatch;
+            while ((absMatch = absRegex.exec(numberingXml)) !== null) {
+              const absId = absMatch[1];
+              const absContent = absMatch[2];
+              abstractMap[absId] = {};
+
+              const lvlRegex = /<w:lvl\b[\s\S]*?w:ilvl="([^"]+)"[\s\S]*?>([\s\S]*?)<\/w:lvl>/g;
+              let lvlMatch;
+              while ((lvlMatch = lvlRegex.exec(absContent)) !== null) {
+                const ilvl = lvlMatch[1];
+                const lvlContent = lvlMatch[2];
+
+                let leftDxa = 720 * (parseInt(ilvl, 10) + 1);
+                let hangingDxa = 360;
+                let rightDxa = 0;
+
+                const indMatch = lvlContent.match(/<w:ind\b([^>]*)\/?>/);
+                if (indMatch) {
+                  const indAttrs = indMatch[1];
+                  const leftM = indAttrs.match(/(?:w:left|left)="([^"]+)"/);
+                  const hangingM = indAttrs.match(/(?:w:hanging|hanging)="([^"]+)"/);
+                  const rightM = indAttrs.match(/(?:w:right|right)="([^"]+)"/);
+
+                  if (leftM) leftDxa = parseInt(leftM[1], 10);
+                  if (hangingM) hangingDxa = parseInt(hangingM[1], 10);
+                  if (rightM) rightDxa = parseInt(rightM[1], 10);
+                }
+
+                const fmtMatch = lvlContent.match(/<w:numFmt\b[^>]*w:val="([^"]+)"/);
+                const numFmt = fmtMatch ? fmtMatch[1] : 'decimal';
+
+                abstractMap[absId][ilvl] = {
+                  leftPt: (leftDxa / 20).toFixed(1),
+                  hangingPt: (hangingDxa / 20).toFixed(1),
+                  rightPt: (rightDxa / 20).toFixed(1),
+                  numFmt
+                };
+              }
+            }
+
+            const numRegex = /<w:num\b[\s\S]*?w:numId="([^"]+)"[\s\S]*?>([\s\S]*?)<\/w:num>/g;
+            let numMatch;
+            while ((numMatch = numRegex.exec(numberingXml)) !== null) {
+              const numId = numMatch[1];
+              const numContent = numMatch[2];
+              const absRefMatch = numContent.match(/<w:abstractNumId\b[^>]*w:val="([^"]+)"/);
+              if (absRefMatch) {
+                const absId = absRefMatch[1];
+                const levels = abstractMap[absId];
+                if (levels) {
+                  for (const [lvl, dims] of Object.entries(levels)) {
+                    numberingStylesText += `
+                      .docx-wrapper section.docx p.docx-num-${numId}-${lvl},
+                      .docx p.docx-num-${numId}-${lvl} {
+                        display: block !important;
+                        list-style: none !important;
+                        list-style-type: none !important;
+                        list-style-position: outside !important;
+                        margin-left: ${dims.leftPt}pt !important;
+                        margin-right: ${dims.rightPt}pt !important;
+                        margin-inline-start: ${dims.leftPt}pt !important;
+                        margin-inline-end: ${dims.rightPt}pt !important;
+                        text-indent: -${dims.hangingPt}pt !important;
+                        padding-left: 0 !important;
+                        position: relative !important;
+                      }
+                      .docx-wrapper section.docx p.docx-num-${numId}-${lvl}::before,
+                      .docx p.docx-num-${numId}-${lvl}::before {
+                        display: inline-block !important;
+                        width: ${dims.hangingPt}pt !important;
+                        min-width: ${dims.hangingPt}pt !important;
+                        text-align: left !important;
+                        text-indent: 0 !important;
+                        margin-right: 0 !important;
+                        box-sizing: border-box !important;
+                        vertical-align: ${dims.numFmt === 'bullet' ? '0.04em' : 'baseline'} !important;
+                        font-size: ${dims.numFmt === 'bullet' ? '0.82em' : 'inherit'} !important;
+                        font-family: ${dims.numFmt === 'bullet' ? 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' : 'inherit'} !important;
+                        ${dims.numFmt !== 'bullet' ? 'font-variant-numeric: tabular-nums !important;' : ''}
+                      }
+                    `;
+                  }
+                }
+              }
+            }
+          } catch (numErr) {
+            console.warn('Gagal membaca numbering.xml:', numErr);
+          }
+        }
+
+        window.__docxInjectedNumberingStyles = numberingStylesText;
+
+        let fontStyleEl = document.getElementById('injected-docx-fonts');
+        if (!fontStyleEl) {
+          fontStyleEl = document.createElement('style');
+          fontStyleEl.id = 'injected-docx-fonts';
+          document.head.appendChild(fontStyleEl);
+        }
+
+        fontStyleEl.textContent = `
+          :root {
+            --docx-doc-font: ${docFontStack};
+            --docx-heading-font: ${headingFontStack};
+          }
+          ${numberingStylesText}
+        `;
+
+        // Muat Google Fonts jika dokumen menggunakan font web umum
+        loadWebFontsIfNeeded(Array.from(detectedFonts));
+
+      } catch (err) {
+        console.warn('Gagal membaca font DOCX:', err);
+      }
+    }
+
+    /**
+     * Memuat Google Fonts secara dinamis jika dokumen memakai font web populer
+     */
+    function loadWebFontsIfNeeded(fonts) {
+      const knownGoogleFonts = [
+        'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Poppins', 'Source Sans Pro',
+        'Merriweather', 'PT Sans', 'Nunito', 'Playfair Display', 'Lora', 'Rubik',
+        'Noto Sans', 'Oswald', 'Raleway', 'Ubuntu', 'Work Sans', 'Fira Sans'
+      ];
+      const toLoad = fonts.filter(f => knownGoogleFonts.some(kgf => kgf.toLowerCase() === f.toLowerCase()));
+      if (toLoad.length === 0) return;
+
+      const familyQuery = toLoad.map(f => `family=${encodeURIComponent(f)}:wght@400;600;700`).join('&');
+      const href = `https://fonts.googleapis.com/css2?${familyQuery}&display=swap`;
+
+      const linkId = 'dynamic-google-fonts';
+      let linkEl = document.getElementById(linkId);
+      if (!linkEl) {
+        linkEl = document.createElement('link');
+        linkEl.id = linkId;
+        linkEl.rel = 'stylesheet';
+        document.head.appendChild(linkEl);
+      }
+      linkEl.href = href;
+    }
+
+    /**
+     * Post-processing DOM setelah docx-preview selesai merender:
+     * 1. Border Merging ala Microsoft Word (menghilangkan garis dobel di bawah header/paragraf)
+     * 2. Normalisasi list bullet dots & tab leader dots
+     * 3. Indentasi & margin akurat untuk list bullet dan numbering
+     * 4. Perataan horizontal tabel & margin/padding default tabel Word
+     * 5. Dukungan justify & distribute alignment
+     * 6. Dukungan hanging indent
+     */
+    function enhanceRenderedDocx(container, styleContainer) {
+      if (!container) return;
+
+      // 1. Border Merging ala Word (Menghilangkan Garis Dobel di bawah Header & Paragraf Berurutan)
+      // Di Microsoft Word, garis pemisah antara paragraf berurutan digabungkan.
+      const blockElements = Array.from(container.querySelectorAll('p, div, [class*="-heading"], [class*="-subtitle"], tr, hr, table'));
+
+      function checkHasBottomBorder(el) {
+        if (!el || el.nodeType !== 1) return false;
+        if (el.style.borderBottom && el.style.borderBottom !== 'none' && !el.style.borderBottom.startsWith('0')) return true;
+        try {
+          const cs = window.getComputedStyle(el);
+          return cs.borderBottomStyle !== 'none' && parseFloat(cs.borderBottomWidth) > 0;
+        } catch (_) { return false; }
+      }
+
+      function checkHasTopBorder(el) {
+        if (!el || el.nodeType !== 1) return false;
+        if (el.style.borderTop && el.style.borderTop !== 'none' && !el.style.borderTop.startsWith('0')) return true;
+        try {
+          const cs = window.getComputedStyle(el);
+          return cs.borderTopStyle !== 'none' && parseFloat(cs.borderTopWidth) > 0;
+        } catch (_) { return false; }
+      }
+
+      for (let i = 0; i < blockElements.length; i++) {
+        const el = blockElements[i];
+        const isElEmpty = (el.textContent || '').trim() === '' && el.querySelectorAll('img, svg, canvas').length === 0;
+
+        // Jika satu elemen kosong memiliki DUA border (atas dan bawah), hapus salah satu (border atas)
+        if (isElEmpty && checkHasTopBorder(el) && checkHasBottomBorder(el)) {
+          el.style.setProperty('border-top', 'none', 'important');
+        }
+
+        // Jika elemen memiliki border bawah, cek apakah ada elemen berurutan berikutnya yang juga ber-border
+        if (checkHasBottomBorder(el)) {
+          for (let j = i + 1; j < Math.min(i + 5, blockElements.length); j++) {
+            const nextEl = blockElements[j];
+            const nextText = (nextEl.textContent || '').trim();
+
+            if (checkHasBottomBorder(nextEl) || checkHasTopBorder(nextEl)) {
+              // Garis dobel terdeteksi! Hilangkan border bawah pada elemen atas (el) sehingga tersisa satu garis tegas
+              el.style.setProperty('border-bottom', 'none', 'important');
+              break;
+            }
+
+            // Jika ada teks/konten nyata di antara keduanya, jangan hilangkan
+            if (nextText.length > 0) {
+              break;
+            }
+          }
+        }
+      }
+
+      // 2. Normalisasi dot bullet di styleContainer (ubah PUA \f0b7 menjadi standard bullet •)
+      if (styleContainer) {
+        const styleElements = styleContainer.querySelectorAll('style');
+        styleElements.forEach(st => {
+          if (st.textContent && (st.textContent.includes('\\f0b7') || st.textContent.includes('\uf0b7'))) {
+            st.textContent = st.textContent
+              .replace(/\\f0b7/g, '\\2022')
+              .replace(/\uf0b7/g, '\u2022');
+          }
+        });
+      }
+
+      // 3. Normalisasi tab leader dots (Daftar Isi)
+      const tabElements = container.querySelectorAll('span.docx-tab, span[style*="dotted"], span[style*="underline"]');
+      tabElements.forEach(tab => {
+        if (tab.style.textDecoration && tab.style.textDecoration.includes('dotted')) {
+          tab.classList.add('docx-leader-dot');
+        }
+      });
+
+      // 4. Normalisasi tabel: Alignment (Center/Right/Left) & Default Cell Padding Word
+      const tables = container.querySelectorAll('table');
+      tables.forEach(tbl => {
+        const alignAttr = (tbl.getAttribute('align') || tbl.style.textAlign || '').toLowerCase();
+        if (alignAttr === 'center' || tbl.style.textAlign === 'center') {
+          tbl.style.marginLeft = 'auto';
+          tbl.style.marginRight = 'auto';
+        } else if (alignAttr === 'right' || tbl.style.textAlign === 'right') {
+          tbl.style.marginLeft = 'auto';
+          tbl.style.marginRight = '0';
+        } else if (alignAttr === 'left' || tbl.style.textAlign === 'left') {
+          tbl.style.marginRight = 'auto';
+        }
+
+        // Terapkan default cell padding Word (5.4pt) jika sel tidak memiliki padding khusus
+        const cells = tbl.querySelectorAll('td, th');
+        cells.forEach(cell => {
+          if (!cell.style.padding && !cell.style.paddingLeft) {
+            cell.style.padding = '3.5pt 5.5pt';
+          }
+        });
+      });
+
+      // 5. Perataan Justify & Distribute, List Indentation & Hanging Indent
+      const allParagraphs = container.querySelectorAll('p, div');
+      allParagraphs.forEach(p => {
+        // Justify & Distribute alignment
+        const align = p.style.textAlign;
+        if (align === 'distribute' || (p.style.cssText && p.style.cssText.includes('distribute'))) {
+          p.style.textAlign = 'justify';
+          p.style.textAlignLast = 'justify';
+          p.style.textJustify = 'distribute';
+        } else if (align === 'justify') {
+          p.style.textJustify = 'inter-word';
+        }
+
+        // Hanging line manual (non-list)
+        const textIndent = p.style.textIndent;
+        if (textIndent && textIndent.startsWith('-') && !p.className.includes('-num-')) {
+          p.classList.add('docx-hanging-indent');
+        }
+
+        // Pastikan seluruh list item memakai block display & bebas marker bawaan browser
+        if (p.className && p.className.includes('-num-')) {
+          p.style.setProperty('display', 'block', 'important');
+          p.style.setProperty('list-style', 'none', 'important');
+          p.style.setProperty('list-style-type', 'none', 'important');
+          p.style.setProperty('list-style-position', 'outside', 'important');
+        }
+      });
+    }
+
     async function renderDocx(dataBuffer, fileName = 'Dokumen.docx') {
       try {
         currentFileName = fileName;
@@ -516,15 +1044,36 @@
         bodyContainer.innerHTML = '';
         styleContainer.innerHTML = '';
 
+        // 1. Ekstrak & terapkan font dan numbering asli dari berkas DOCX
+        await extractAndApplyDocxFonts(dataBuffer);
+
+        // 2. Render dokumen dengan opsi experimental tab stops aktif
         await window.docx.renderAsync(dataBuffer, bodyContainer, styleContainer, {
           inWrapper: true,
           ignoreHeight: false,
           ignoreWidth: false,
           breakPages: true,
           ignoreLastRenderedPageBreak: false,
+          experimental: true, // Mengaktifkan perataan tab stops & leader dots
+          trimXmlDeclaration: true,
           renderChanges: false,
           renderComments: false
         });
+
+        // 3. Terapkan ulang style numbering yang diekstrak langsung ke akhir styleContainer
+        // Supaya tidak pernah tertimpa oleh stylesheet default docx-preview
+        if (window.__docxInjectedNumberingStyles) {
+          const existingOverride = document.getElementById('docx-override-numbering');
+          if (existingOverride) existingOverride.remove();
+
+          const overrideStyleEl = document.createElement('style');
+          overrideStyleEl.id = 'docx-override-numbering';
+          overrideStyleEl.textContent = window.__docxInjectedNumberingStyles;
+          (styleContainer || document.head).appendChild(overrideStyleEl);
+        }
+
+        // 4. Tingkatkan rendering DOM untuk border merging (hilangkan garis dobel), hanging line, table margins, justify, dan dots
+        enhanceRenderedDocx(bodyContainer, styleContainer);
 
         hideStatus();
 
@@ -654,4 +1203,5 @@
     window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
+
 </html>

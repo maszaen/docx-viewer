@@ -37,7 +37,7 @@ Pustaka dimuat melalui jaringan CDN dengan spesifikasi versi tetap (*pinned vers
 ```html
 <!-- JSZip dimuat sebelum docx-preview sesuai dependensi pustaka -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx-preview@0.4.1/dist/docx-preview.min.js"></script>
 ```
 
 ---

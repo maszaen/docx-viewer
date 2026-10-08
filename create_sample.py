@@ -19,18 +19,38 @@ run_author.font.color.rgb = RGBColor(120, 120, 120)
 
 doc.add_paragraph()
 
-doc.add_heading('1. Ringkasan Eksekutif', level=1)
-doc.add_paragraph(
+doc.add_heading('1. Ringkasan Eksekutif (Justify Alignment)', level=1)
+p_ringkasan = doc.add_paragraph(
     'Modul ini dirancang untuk menampilkan pratinjau dokumen Microsoft Word (.docx) secara langsung '
     'di dalam peramban web (browser) tanpa menggunakan layanan pihak ketiga seperti Google Docs Viewer '
-    'maupun Office Online Viewer. Hal ini menjaga kerahasiaan dan privasi dokumen internal sistem Cicool.'
+    'maupun Office Online Viewer. Hal ini menjaga kerahasiaan dan privasi dokumen internal sistem Cicool. '
+    'Teks pada bagian ini diatur dengan perataan rata kanan-kiri (Justify Alignment) sehingga tepi kanan dan kiri '
+    'tersusun rapi dan sejajar di sepanjang lebar margin halaman dokumen.'
 )
+p_ringkasan.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
-doc.add_heading('2. Arsitektur Client-Side', level=1)
+doc.add_heading('2. Arsitektur Client-Side & Hanging Indent', level=1)
 doc.add_paragraph(
     'Dengan memindahkan tugas rendering dari server PHP ke peramban pengguna, beban CPU dan memori server '
     'dapat dihemat secara drastis. Berkas OpenXML dibaca dan diurai secara lokal menggunakan pustaka JavaScript murni.'
 )
+
+p_hang1 = doc.add_paragraph(
+    '[Ref-01] Baydalka, V. (2024). OpenXML DOCX Rendering Engine for Web Browsers. '
+    'Jurnal Rekayasa Perangkat Lunak Web, Vol. 12, No. 3, Hal. 45-59. Paragraf ini menggunakan format '
+    'hanging line (hanging indent) di mana baris pertama menjorok ke margin kiri dan baris-baris berikutnya '
+    'menjorok ke dalam secara otomatis.'
+)
+p_hang1.paragraph_format.left_indent = Inches(0.5)
+p_hang1.paragraph_format.first_line_indent = Inches(-0.25)
+p_hang1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+p_hang2 = doc.add_paragraph(
+    '[Ref-02] ISO/IEC 29500-1:2016 Information Technology — Document Description and Processing Languages — '
+    'Office Open XML File Formats — Part 1: Fundamentals and Markup Language Reference.'
+)
+p_hang2.paragraph_format.left_indent = Inches(0.5)
+p_hang2.paragraph_format.first_line_indent = Inches(-0.25)
 
 # --- PAGE BREAK KE HALAMAN 2 ---
 doc.add_page_break()
@@ -43,7 +63,7 @@ doc.add_paragraph('Implementasi dilakukan dengan JavaScript murni (Vanilla JS) d
 
 bullets = [
     ('JSZip (v3.10.1):', ' Bertanggung jawab untuk membaca dan mengekstrak struktur ZIP berkas .docx.'),
-    ('docx-preview (v0.3.3):', ' Merender XML dokumen OpenXML menjadi elemen HTML & styling CSS.'),
+    ('docx-preview (v0.4.1):', ' Merender XML dokumen OpenXML menjadi elemen HTML & styling CSS dengan perataan akurat.'),
     ('Query String & IndexedDB:', ' Mekanisme transmisi data antara halaman utama dan tab pratinjau.')
 ]
 
@@ -93,15 +113,17 @@ r_warn.bold = True
 r_warn.font.color.rgb = RGBColor(180, 50, 50)
 p_limit.add_run(
     'Rendering di sisi klien (client-side) menggunakan docx-preview bersifat read-only. '
-    'Tata letak halaman mungkin tidak 100% pixel-perfect dibandingkan aplikasi desktop Microsoft Word asli, '
-    'terutama terkait pagination otomatis, font khusus sistem operasi, header/footer dinamis, dan makro Office.'
+    'Tata letak halaman dioptimalkan mendekati tampilan Microsoft Word, termasuk perataan rata kanan-kiri, '
+    'hanging line pada sitasi, serta margin dan padding sel tabel.'
 )
+p_limit.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
 doc.add_heading('6. Kesimpulan dan Rekomendasi', level=1)
-doc.add_paragraph(
+p_recom = doc.add_paragraph(
     'Pendekatan client-side ini sangat direkomendasikan untuk sistem CodeIgniter 3 / Cicool '
     'karena kestabilan, portabilitas tanpa build tools, serta kepatuhan penuh terhadap privasi data dokumen.'
 )
+p_recom.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
 output_path = 'h:/VSCode/docx-preview-cicool/sample.docx'
 doc.save(output_path)
