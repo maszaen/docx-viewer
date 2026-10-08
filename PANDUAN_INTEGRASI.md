@@ -13,7 +13,7 @@ Implementasi menggunakan JavaScript murni (*Vanilla JS*), HTML, dan CSS dengan p
 Untuk kebutuhan produksi pada aplikasi utama, berkas yang digunakan secara mandiri adalah:
 **[`preview.html`](preview.html)**
 
-Berkas `index.html` hanya berfungsi sebagai lingkungan simulasi dan pengujian lokal, sehingga tidak wajib disertakan dalam aplikasi produksi.
+Berkas `test.html` hanya berfungsi sebagai lingkungan simulasi dan pengujian lokal, sehingga tidak wajib disertakan dalam aplikasi produksi.
 
 ---
 

@@ -21,7 +21,7 @@ Modul ini menyediakan fitur pratinjau dokumen Microsoft Word (`.docx`) langsung 
 ```text
 docx-preview-cicool/
 ├── preview.html         # Berkas utama penampil dokumen (digunakan pada aplikasi produksi)
-├── index.html           # Berkas simulasi dan pengujian antarmuka tabel Cicool
+├── test.html           # Berkas simulasi dan pengujian antarmuka tabel Cicool
 ├── sample.docx          # Dokumen uji valid (berisi judul, penomoran, tabel, dan format teks)
 ├── test_legacy.doc      # Dokumen uji format lama Word 97-2003 (untuk validasi penolakan sistem)
 ├── PANDUAN_INTEGRASI.md # Dokumentasi teknis integrasi untuk tim pengembang
