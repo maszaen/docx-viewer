@@ -346,15 +346,16 @@
 
   <div class="container">
 
-    <!-- Informasi Ringkas Pengujian -->
+    <!-- Informasi Ringkas Pengujian & Keterangan Modul -->
     <div class="info-card">
       <h4>
         <span class="material-symbols-outlined" style="font-size:15px;">info</span>
-        Petunjuk Pengujian Fitur
+        Catatan Pengujian & Integrasi Sistem
       </h4>
       <p>
-        Halaman ini berfungsi untuk memverifikasi fungsionalitas berkas <code>preview.html</code> secara mandiri.
-        Setiap aksi akan membuka tab baru menggunakan instruksi <code>window.open(..., '_blank', 'noopener')</code> sesuai kebutuhan integrasi sistem utama.
+        Halaman ini (<code>test.html</code>) <strong>hanya berfungsi sebagai simulator untuk pengujian integrasi</strong>. 
+        Modul inti yang sesungguhnya digunakan pada sistem aplikasi produksi (seperti CodeIgniter 3) adalah <strong><code>preview.html</code></strong>. 
+        Tim pengembang hanya perlu menyalin berkas <code>preview.html</code> ke direktori aset publik aplikasi dan memanggilnya di tab baru secara <em>read-only</em>.
       </p>
     </div>
 
