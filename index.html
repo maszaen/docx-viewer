@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulasi Cicool CI3 - DOCX In-Browser Preview</title>
+  <style>
+    :root {
+      --primary: #3c8dbc;
+      --primary-hover: #367fa9;
+      --bg-light: #f4f6f9;
+      --card-bg: #ffffff;
+      --border: #d2d6de;
+      --text-dark: #333333;
+      --success: #00a65a;
+      --warning: #f39c12;
+      --danger: #dd4b39;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    /* Header Cicool / AdminLTE */
+    .navbar {
+      background-color: var(--primary);
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-cicool {
+      background: rgba(255,255,255,0.25);
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 25px auto;
+      padding: 0 20px;
+    }
+
+    .callout {
+      border-radius: 4px;
+      margin: 0 0 24px 0;
+      padding: 16px 20px;
+      border-left: 5px solid var(--primary);
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .callout h4 {
+      margin-bottom: 6px;
+      color: var(--primary);
+      font-size: 16px;
+    }
+    .callout p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .box {
+      background: var(--card-bg);
+      border-top: 3px solid var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      padding: 20px;
+    }
+
+    .box-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .box-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #fafafa;
+      color: #666;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #fcfcfc;
+    }
+
+    .badge-file {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 3px;
+      color: #fff;
+    }
+    .badge-docx { background-color: #2b579a; }
+    .badge-doc { background-color: #d97706; }
+    .badge-err { background-color: #dc2626; }
+    .badge-local { background-color: #059669; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .btn-preview {
+      background-color: var(--primary);
+      color: white;
+    }
+    .btn-preview:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+      font-weight: 600;
+      padding: 8px 18px;
+      font-size: 14px;
+    }
+    .btn-success:hover {
+      background-color: #008d4c;
+    }
+
+    /* Area Drag & Drop yang Ditingkatkan */
+    .dropzone-container {
+      position: relative;
+    }
+
+    .dropzone {
+      border: 2px dashed #94a3b8;
+      border-radius: 8px;
+      padding: 36px 20px;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      user-select: none;
+    }
+
+    .dropzone.dragover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: scale(1.01);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+
+    .dropzone-icon {
+      font-size: 44px;
+      margin-bottom: 10px;
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    .dropzone.dragover .dropzone-icon {
+      transform: translateY(-4px) scale(1.1);
+    }
+
+    .dropzone-text-main {
+      font-weight: 600;
+      font-size: 16px;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .dropzone-text-sub {
+      font-size: 13.5px;
+      color: #64748b;
+    }
+
+    /* Kartu status file lokal siap */
+    .ready-card {
+      display: none;
+      margin-top: 18px;
+      padding: 16px 20px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 6px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .ready-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ready-icon {
+      font-size: 28px;
+    }
+
+    .ready-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #065f46;
+    }
+
+    .ready-size {
+      font-size: 13px;
+      color: #047857;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar Cicool CI3 Mockup -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <span>📄 Sistem Dokumen Cicool</span>
+      <span class="badge-cicool">CI3 Frontend Module</span>
+    </div>
+    <div style="font-size: 13px;">Vanilla JS DOCX Previewer</div>
+  </header>
+
+  <div class="container">
+    
+    <!-- Info Ringkas -->
+    <div class="callout">
+      <h4>💡 Modul Pratinjau Dokumen DOCX (Vanilla JS)</h4>
+      <p>
+        Membuka file <strong>.docx</strong> langsung di browser pengguna (tab baru) secara read-only tanpa mengirim file ke server pihak ketiga (Google Docs / Office Online dilarang).
+      </p>
+    </div>
+
+    <!-- Panel 1: Skenario A (Query String URL - File Server Cicool) -->
+    <div class="box">
+      <div class="box-header">
+        <h3 class="box-title">Daftar Dokumen (Tabel Data Cicool CI3)</h3>
+      </div>
+      <p style="font-size: 13.5px; color: #666; margin-bottom: 12px;">
+        Klik tombol <strong>"Preview"</strong> untuk membuka tab baru via <code>window.open('preview.html?file=...', '_blank', 'noopener')</code>:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50px;">No</th>
+            <th>Nama Dokumen</th>
+            <th>Tipe File</th>
+            <th>Keterangan / Skenario</th>
+            <th style="width: 140px; text-align: center;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr>
+            <td>1</td>
+            <td><strong>sample.docx</strong></td>
+            <td><span class="badge-file badge-docx">DOCX</span></td>
+            <td>File contoh valid (tabel, heading, list)</td>
+            <td style="text-align: center;">
+              <button class="btn btn-preview" onclick="openPreviewUrl('sample.docx')">
+                👁️ Preview
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>file_tidak_ada.docx</strong></td>
+            <td><span class="badge-file badge-err">404</span></td>
+            <td>Uji penanganan file tidak ada di server</td>
+            <td style="text-align: center;">
+              <button class="btn btn-preview" style="background:#dd4b39;" onclick="openPreviewUrl('file_tidak_ada.docx')">
+                ⚠️ Uji 404
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>test_legacy.doc</strong></td>
+            <td><span class="badge-file badge-doc">.DOC LAMA</span></td>
+            <td>Uji penolakan format Word biner 97-2003</td>
+            <td style="text-align: center;">
+              <button class="btn btn-preview" style="background:#d97706;" onclick="openPreviewUrl('test_legacy.doc')">
+                🚫 Uji .doc
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Panel 2: Skenario B (IndexedDB - Drag & Drop / Upload File Lokal) -->
+    <div class="box">
+      <div class="box-header">
+        <h3 class="box-title">Uji File Pribadi dari Komputer (Drag & Drop / Pilih File)</h3>
+      </div>
+      <p style="font-size: 13.5px; color: #666; margin-bottom: 16px;">
+        Tarik (drag & drop) berkas <strong>.docx</strong> ke dalam kotak di bawah ini, atau klik untuk memilih berkas dari komputer Anda. File akan disimpan di <strong>IndexedDB</strong> lalu dibuka di tab baru.
+      </p>
+
+      <div class="dropzone-container">
+        <!-- Hidden input file -->
+        <input type="file" id="file-picker" accept=".docx" style="display: none;" onchange="onFileSelected(event)">
+
+        <!-- Dropzone Element -->
+        <div id="dropzone" class="dropzone" onclick="document.getElementById('file-picker').click()">
+          <div class="dropzone-icon">📥</div>
+          <div class="dropzone-text-main">Tarik & Lepaskan (Drag & Drop) file .docx ke sini</div>
+          <div class="dropzone-text-sub">atau klik di mana saja dalam kotak ini untuk memilih file dari komputer</div>
+        </div>
+
+        <!-- Kartu Notifikasi File Siap & Tombol Preview Manual (Mencegah Popup Blocker) -->
+        <div id="ready-card" class="ready-card">
+          <div class="ready-info">
+            <span class="ready-icon">📄</span>
+            <div>
+              <div id="ready-name" class="ready-name">Nama Dokumen.docx</div>
+              <div id="ready-size" class="ready-size">0 KB - Tersimpan di IndexedDB</div>
+            </div>
+          </div>
+          <button id="btn-open-ready" type="button" class="btn btn-success">
+            👁️ Buka Preview di Tab Baru
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * METODE A: QUERY STRING URL (Untuk File di Server Cicool CI3)
+     * =========================================================================
+     */
+    function openPreviewUrl(fileUrl) {
+      const targetUrl = 'preview.html?file=' + encodeURIComponent(fileUrl);
+      window.open(targetUrl, '_blank', 'noopener');
+    }
+
+    /**
+     * =========================================================================
+     * METODE B: INDEXEDDB (Untuk File Lokal Drag & Drop / Input Picker)
+     * =========================================================================
+     */
+    const DB_NAME = 'DocxPreviewDB';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'documents';
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveFileToIndexedDB(id, blob, name) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.put({
+          id: id,
+          data: blob,
+          name: name,
+          timestamp: Date.now()
+        });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // Format ukuran berkas (bytes ke KB/MB)
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    /**
+     * Memproses file yang dipilih atau di-drop
+     */
+    async function processLocalFile(file) {
+      if (!file) return;
+
+      // Validasi Ekstensi Dasar
+      if (!file.name.toLowerCase().endsWith('.docx')) {
+        alert('Format file tidak didukung! Mohon pilih file dokumen Word dengan format .docx (Word 2007 ke atas).');
+        return;
+      }
+
+      const docId = 'local_' + Date.now();
+      const dropzone = document.getElementById('dropzone');
+      const originalText = dropzone.querySelector('.dropzone-text-main').textContent;
+      dropzone.querySelector('.dropzone-text-main').textContent = '⏳ Menyimpan ke IndexedDB...';
+
+      try {
+        // Simpan sebagai Blob di IndexedDB (Sesuai requirement: Jangan pakai localStorage untuk file biner!)
+        const blob = new Blob([file], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        await saveFileToIndexedDB(docId, blob, file.name);
+
+        // Tampilkan info kartu siap dan tombol buka
+        const readyCard = document.getElementById('ready-card');
+        const readyName = document.getElementById('ready-name');
+        const readySize = document.getElementById('ready-size');
+        const btnOpen = document.getElementById('btn-open-ready');
+
+        readyName.textContent = file.name;
+        readySize.textContent = `${formatBytes(file.size)} • Tersimpan sementara di IndexedDB`;
+        readyCard.style.display = 'flex';
+
+        const targetUrl = 'preview.html?id=' + encodeURIComponent(docId);
+
+        // Pasang aksi klik pada tombol hijau
+        btnOpen.onclick = () => {
+          window.open(targetUrl, '_blank', 'noopener');
+        };
+
+        // Tambahkan baris baru ke tabel agar terlihat jelas
+        addFileToTable(file.name, docId);
+
+        // Coba buka tab baru otomatis
+        const newTab = window.open(targetUrl, '_blank', 'noopener');
+        if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+          // Jika browser memblokir popup karena operasi async
+          console.warn('Peramban memblokir popup otomatis. Pengguna dapat mengklik tombol hijau.');
+        }
+
+      } catch (err) {
+        console.error('Error saat menyimpan file:', err);
+        alert('Gagal memproses file: ' + err.message);
+      } finally {
+        dropzone.querySelector('.dropzone-text-main').textContent = originalText;
+      }
+    }
+
+    // Menambahkan baris ke tabel simulasi Cicool
+    function addFileToTable(fileName, docId) {
+      const tbody = document.getElementById('table-body');
+      const rowCount = tbody.querySelectorAll('tr').length + 1;
+      const tr = document.createElement('tr');
+      tr.style.backgroundColor = '#ecfdf5';
+      tr.innerHTML = `
+        <td>${rowCount}</td>
+        <td><strong>${escapeHtml(fileName)}</strong> (File Lokal)</td>
+        <td><span class="badge-file badge-local">LOCAL DOCX</span></td>
+        <td>Dimuat dari komputer Anda (IndexedDB)</td>
+        <td style="text-align: center;">
+          <button class="btn btn-preview" style="background:#059669;" onclick="window.open('preview.html?id=${encodeURIComponent(docId)}', '_blank', 'noopener')">
+            👁️ Preview
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Handler ketika memilih file lewat input file
+    function onFileSelected(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processLocalFile(file);
+      }
+      event.target.value = ''; // Reset agar bisa pilih file yang sama
+    }
+
+    // =========================================================================
+    // IMPLEMENTASI LENGKAP DRAG & DROP
+    // =========================================================================
+    const dropzone = document.getElementById('dropzone');
+
+    // Cegah event drag browser bawaan
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+      document.body.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+
+    // Efek visual saat file ditarik ke dalam area
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    // Tangani saat file di-drop (dilepas)
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        processLocalFile(dt.files[0]);
+      }
+    }, false);
+  </script>
+</body>
+</html>

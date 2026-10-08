@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pratinjau Dokumen DOCX</title>
+
+  <!-- Google Fonts: Inter & Material Symbols Outlined (CDN Resmi) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+  <!-- Pustaka Dependensi (Versi Terpin) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js"></script>
+
+  <style>
+    /*
+     * DESAIN: Flat, Modern, Monochrome (Black & White), Compact & Bordered
+     * Kanvas Kertas: Mengadopsi tata letak Microsoft Word dengan jeda (gap) rapi antar halaman
+     */
+    :root {
+      --canvas-bg: #eceff1;        /* Warna meja kerja netral ala Word */
+      --header-bg: #ffffff;        /* Header putih bersih */
+      --border-color: #111111;     /* Border hitam solid tegas */
+      --border-muted: #e2e8f0;     /* Border abu-abu halus */
+      --text-main: #111111;        /* Teks hitam pekat */
+      --text-muted: #64748b;       /* Teks abu netral */
+      --paper-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--canvas-bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Google Material Symbols Helper */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 16px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* =========================================================================
+     * HEADER TOOLBAR: Diselaraskan dengan Border & Shadow Kertas
+     * ========================================================================= */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: #ffffff;
+      height: 44px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #d4d4d8; /* Border persis seperti kertas */
+      box-shadow: var(--paper-shadow);   /* Shadow persis seperti kertas */
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .doc-icon-badge {
+      width: 26px;
+      height: 26px;
+      background: #111111;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #111111;
+      flex-shrink: 0;
+    }
+
+    .doc-icon-badge .material-symbols-outlined {
+      font-size: 16px;
+      color: #ffffff;
+    }
+
+    .doc-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 380px;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-ro {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Tombol Flat Modern Bordered */
+    .btn-flat {
+      height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 0px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      letter-spacing: 0.01em;
+      outline: none;
+    }
+
+    .btn-flat:hover {
+      background: #111111;
+      color: #ffffff;
+    }
+
+    .btn-flat-black {
+      background: #111111;
+      color: #ffffff;
+      border: 1px solid #111111;
+    }
+
+    .btn-flat-black:hover {
+      background: #333333;
+      border-color: #333333;
+    }
+
+    /* =========================================================================
+     * VIEWPORT & LEMBAR KERTAS (ALA MICROSOFT WORD DENGAN GAP PAS)
+     * ========================================================================= */
+    .preview-viewport {
+      flex: 1;
+      padding: 20px 16px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-y: auto;
+    }
+
+    #document-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Wrapper utama dari docx-preview */
+    .docx-wrapper {
+      background: transparent !important;
+      padding: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 12px !important; /* Jeda antar halaman pas & tidak terlalu renggang */
+      width: 100% !important;
+    }
+
+    /* Setiap lembar kertas Word */
+    .docx-wrapper > section.docx {
+      background: #ffffff !important;
+      margin: 0 auto !important;
+      margin-bottom: 12px !important; /* Gap pas ala Microsoft Word */
+      box-shadow: var(--paper-shadow) !important;
+      border: 1px solid #d4d4d8 !important; /* Border tipis rapi pada pinggir kertas */
+      border-radius: 0px !important;       /* Potongan kertas sudut tajam ala MS Word */
+      box-sizing: border-box !important;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .docx-wrapper > section.docx:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    #style-container {
+      display: none;
+    }
+
+    /* =========================================================================
+     * STATUS & ERROR BOX: Diselaraskan dengan Border & Shadow Kertas
+     * ========================================================================= */
+    .status-container {
+      width: 100%;
+      max-width: 480px;
+      margin: 40px auto;
+    }
+
+    .status-box {
+      background: #ffffff;
+      border: 1px solid #d4d4d8;        /* Border persis seperti kertas */
+      box-shadow: var(--paper-shadow);   /* Shadow persis seperti kertas */
+      border-radius: 0px;               /* Sudut tajam persis seperti kertas */
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .loading-box {
+      background: #ffffff;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #e5e5e5;
+      border-top-color: #111111;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 14px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #111111;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-message {
+      font-size: 13px;
+      color: #555555;
+    }
+
+    .error-box {
+      border: 1px solid #d4d4d8;
+      box-shadow: var(--paper-shadow);
+      background: #ffffff;
+      text-align: left;
+    }
+
+    .error-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 8px;
+    }
+
+    .error-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .error-desc {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #222222;
+    }
+
+    .error-tips {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #cccccc;
+      font-size: 12px;
+      color: #444444;
+    }
+
+    .error-tips ul {
+      margin-left: 20px;
+      margin-top: 4px;
+    }
+
+    /* Print View */
+    @media print {
+      .toolbar, .status-container {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+      }
+      .preview-viewport {
+        padding: 0 !important;
+      }
+      .docx-wrapper {
+        gap: 0 !important;
+      }
+      .docx-wrapper > section.docx {
+        box-shadow: none !important;
+        border: none !important;
+        margin-bottom: 0 !important;
+        page-break-after: always !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Toolbar Flat Black & White (Tanpa Garis Bawah) -->
+  <header class="toolbar">
+    <div class="toolbar-left">
+      <span class="doc-icon-badge" title="Microsoft Word Document">
+        <span class="material-symbols-outlined">description</span>
+      </span>
+      <span id="doc-title" class="doc-name">Memuat dokumen...</span>
+      <span class="badge-ro">READ-ONLY</span>
+    </div>
+
+    <div class="toolbar-right">
+      <button type="button" class="btn-flat" onclick="window.print()" title="Cetak Dokumen">
+        <span class="material-symbols-outlined">print</span>
+        Cetak
+      </button>
+
+      <button type="button" id="btn-download" class="btn-flat" style="display: none;" title="Unduh Berkas">
+        <span class="material-symbols-outlined">download</span>
+        Unduh
+      </button>
+
+      <button type="button" class="btn-flat btn-flat-black" onclick="window.close()" title="Tutup Halaman">
+        <span class="material-symbols-outlined">close</span>
+        Tutup Tab
+      </button>
+    </div>
+  </header>
+
+  <!-- Area Kanvas Kertas Dokumen -->
+  <main class="preview-viewport">
+    <div id="status-container" class="status-container"></div>
+    <div id="document-container"></div>
+    <div id="style-container"></div>
+  </main>
+
+  <script>
+    /**
+     * BATASAN SISTEM (LIMITATIONS):
+     * 1. Dokumen bersifat read-only.
+     * 2. Rendering tata letak XML ke HTML tidak 100% pixel-perfect dibandingkan aplikasi
+     *    desktop Microsoft Word resmi (terutama pada dynamic macro dan font khusus OS).
+     */
+
+    const statusContainer = document.getElementById('status-container');
+    const bodyContainer = document.getElementById('document-container');
+    const styleContainer = document.getElementById('style-container');
+    const docTitleEl = document.getElementById('doc-title');
+    const btnDownload = document.getElementById('btn-download');
+
+    let currentBlob = null;
+    let currentFileName = 'dokumen.docx';
+
+    function showLoading(message = 'Memproses dokumen...') {
+      statusContainer.innerHTML = `
+        <div class="status-box">
+          <div class="spinner"></div>
+          <div class="status-title">Memuat Dokumen</div>
+          <div class="status-message">${escapeHtml(message)}</div>
+        </div>
+      `;
+      statusContainer.style.display = 'block';
+    }
+
+    function hideStatus() {
+      statusContainer.innerHTML = '';
+      statusContainer.style.display = 'none';
+    }
+
+    function showError(title, message, tips = []) {
+      const tipsHtml = tips.length > 0
+        ? `<div class="error-tips"><strong>Rekomendasi Penanganan:</strong><ul>${tips.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul></div>`
+        : '';
+
+      statusContainer.innerHTML = `
+        <div class="status-box error-box">
+          <div class="error-header">
+            <span class="material-symbols-outlined" style="font-size:18px;">warning</span>
+            <h3>${escapeHtml(title)}</h3>
+          </div>
+          <div class="error-desc">${escapeHtml(message)}</div>
+          ${tipsHtml}
+        </div>
+      `;
+      statusContainer.style.display = 'block';
+      docTitleEl.textContent = 'Gagal Memuat Dokumen';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function inspectFileSignature(arrayBuffer) {
+      if (!arrayBuffer || arrayBuffer.byteLength < 4) {
+        return { isZip: false, isLegacyDoc: false };
+      }
+      const bytes = new Uint8Array(arrayBuffer.slice(0, 4));
+      const isZip = (bytes[0] === 0x50 && bytes[1] === 0x4B && bytes[2] === 0x03 && bytes[3] === 0x04);
+      const isLegacyDoc = (bytes[0] === 0xD0 && bytes[1] === 0xCF && bytes[2] === 0x11 && bytes[3] === 0xE0);
+      return { isZip, isLegacyDoc };
+    }
+
+    function getFileFromIndexedDB(id) {
+      return new Promise((resolve, reject) => {
+        const DB_NAME = 'DocxPreviewDB';
+        const STORE_NAME = 'documents';
+        const request = indexedDB.open(DB_NAME, 1);
+
+        request.onerror = () => reject(new Error('Gagal mengakses IndexedDB.'));
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            resolve(null);
+            return;
+          }
+          const tx = db.transaction(STORE_NAME, 'readonly');
+          const store = tx.objectStore(STORE_NAME);
+          const getReq = store.get(id);
+          getReq.onsuccess = () => resolve(getReq.result);
+          getReq.onerror = () => reject(new Error('Gagal mengambil data dari IndexedDB.'));
+        };
+      });
+    }
+
+    async function renderDocx(dataBuffer, fileName = 'Dokumen.docx') {
+      try {
+        currentFileName = fileName;
+        docTitleEl.textContent = fileName;
+        document.title = `Pratinjau: ${fileName}`;
+
+        currentBlob = new Blob([dataBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        btnDownload.style.display = 'inline-flex';
+        btnDownload.onclick = () => {
+          const url = URL.createObjectURL(currentBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = currentFileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        };
+
+        if (!dataBuffer || dataBuffer.byteLength === 0) {
+          throw new Error('Berkas dokumen kosong (0 bytes).');
+        }
+
+        const signature = inspectFileSignature(dataBuffer);
+
+        if (signature.isLegacyDoc || fileName.toLowerCase().endsWith('.doc')) {
+          showError(
+            'Format Berkas Tidak Didukung (.doc)',
+            'Berkas ini berformat biner Microsoft Word 97-2003 (.doc). Modul ini hanya mendukung format OpenXML .docx (Word 2007 ke atas).',
+            [
+              'Buka berkas di aplikasi pengolah kata, lalu simpan ulang (Save As) ke format Word Document (.docx).',
+              'Unggah kembali berkas .docx yang baru.'
+            ]
+          );
+          return;
+        }
+
+        if (!signature.isZip) {
+          showError(
+            'Bukan Berkas DOCX Valid',
+            'Struktur berkas tidak sesuai standar ZIP OpenXML. Berkas mungkin rusak atau format lain.',
+            ['Pastikan berkas dapat dibuka pada aplikasi desktop Microsoft Word.']
+          );
+          return;
+        }
+
+        if (typeof window.docx === 'undefined' || typeof window.docx.renderAsync !== 'function') {
+          throw new Error('Pustaka docx-preview gagal dimuat.');
+        }
+
+        bodyContainer.innerHTML = '';
+        styleContainer.innerHTML = '';
+
+        await window.docx.renderAsync(dataBuffer, bodyContainer, styleContainer, {
+          inWrapper: true,
+          ignoreHeight: false,
+          ignoreWidth: false,
+          breakPages: true,
+          ignoreLastRenderedPageBreak: false,
+          renderChanges: false,
+          renderComments: false
+        });
+
+        hideStatus();
+
+      } catch (err) {
+        console.error('Error rendering:', err);
+        showError('Gagal Memproses Dokumen', err.message || 'Terjadi kesalahan perenderan.');
+      }
+    }
+
+    async function loadFromUrl(url) {
+      showLoading('Mengunduh berkas...');
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 'Accept': '*/*' }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Berkas tidak ditemukan pada server (HTTP 404).');
+          }
+          throw new Error(`Gagal mengunduh berkas (HTTP status: ${response.status} ${response.statusText}).`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const parsedUrl = new URL(url, window.location.href);
+        const segments = parsedUrl.pathname.split('/');
+        const resolvedName = decodeURIComponent(segments.pop() || 'dokumen.docx');
+
+        await renderDocx(arrayBuffer, resolvedName);
+
+      } catch (err) {
+        console.error('Fetch error:', err);
+        const isCors = err.name === 'TypeError' && err.message.toLowerCase().includes('fetch');
+        const tips = isCors ? [
+          'Jika berkas berada di domain/port berbeda, pastikan server tujuan menambahkan header: Access-Control-Allow-Origin: *',
+          'Pastikan berkas dapat diakses secara publik.'
+        ] : [
+          'Periksa kembali path atau URL berkas.',
+          'Pastikan server lokal sedang berjalan.'
+        ];
+
+        showError('Gagal Mengambil Berkas', err.message, tips);
+      }
+    }
+
+    async function loadFromIndexedDB(id) {
+      showLoading('Mengambil berkas dari penyimpanan lokal...');
+      try {
+        const record = await getFileFromIndexedDB(id);
+        if (!record || !record.data) {
+          throw new Error(`Data dengan ID "${id}" tidak ditemukan pada penyimpanan lokal.`);
+        }
+
+        let arrayBuffer;
+        if (record.data instanceof ArrayBuffer) {
+          arrayBuffer = record.data;
+        } else if (record.data instanceof Blob) {
+          arrayBuffer = await record.data.arrayBuffer();
+        } else {
+          throw new Error('Format data tidak valid.');
+        }
+
+        await renderDocx(arrayBuffer, record.name || 'dokumen.docx');
+
+      } catch (err) {
+        console.error('IndexedDB error:', err);
+        showError('Gagal Membaca Penyimpanan Lokal', err.message);
+      }
+    }
+
+    async function init() {
+      showLoading('Menyiapkan pratinjau...');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      let fileUrl = urlParams.get('file') || urlParams.get('url') || urlParams.get('doc');
+      let dbId = urlParams.get('id') || urlParams.get('key');
+
+      if (dbId && !fileUrl) {
+        if (dbId.includes('.') || dbId.includes('/') || dbId.includes('\\') || dbId.startsWith('http')) {
+          fileUrl = dbId;
+          dbId = null;
+        }
+      }
+
+      if (fileUrl && fileUrl.toLowerCase().endsWith('.doc')) {
+        showError(
+          'Format Berkas Tidak Didukung (.doc)',
+          'Tautan mengarah ke format Microsoft Word 97-2003 (.doc). Sistem hanya mendukung format .docx.',
+          ['Konversi berkas ke format .docx sebelum membuka pratinjau.']
+        );
+        return;
+      }
+
+      if (fileUrl) {
+        await loadFromUrl(fileUrl);
+        return;
+      }
+
+      if (dbId) {
+        await loadFromIndexedDB(dbId);
+        return;
+      }
+
+      showError(
+        'Parameter Berkas Diperlukan',
+        'Halaman ini memerlukan parameter file atau id pada URL.',
+        ['Contoh: preview.html?file=/path/to/dokumen.docx']
+      );
+    }
+
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        showLoading(`Membaca berkas ${file.name}...`);
+        try {
+          const buf = await file.arrayBuffer();
+          await renderDocx(buf, file.name);
+        } catch (err) {
+          showError('Gagal Membaca Berkas', err.message);
+        }
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
